@@ -1,0 +1,317 @@
+<?php
+    $school = false;
+    $school_name = null;
+    $field = false;
+    $field_name = null;
+    $type = null;
+    $class = 'l';
+    if (isset($_POST['class']) && ($_POST['class'] === 'l' || $_POST['class'] === 'w')) {
+        $class = $_POST['class'];
+    }
+    $conn = mysqli_connect('localhost', 'gaokao', '0asRsBG8H8Ak5egd', 'gaokao') or die(mysqli_error($conn));
+    if (!mysqli_set_charset($conn, "utf8")) {
+        die("unexpected error, contact me@ifengge.cn");
+    }
+
+    if(strlen($_POST['school']) > 0){
+        if(mb_strlen($_POST['school'],'utf8') <= 15 && is_string($_POST['school']) && strlen($_POST['school']) > 0){
+            $school = true;
+            $school_name = mysqli_real_escape_string($conn, htmlentities($_POST['school']));
+        }
+    }
+    if (isset($_POST['field'])){
+        if(is_string($_POST['field']) && mb_strlen($_POST['field'],'utf8') <= 15 && strlen($_POST['field']) > 0){
+            $field = true;
+            $field_name = mysqli_real_escape_string($conn, htmlentities($_POST['field']));
+        }
+    }
+    if ($school_name === "kyx" || $school_name === "康玉溪") {
+        die('(థฺˇ౪ˇథ)');
+    }
+    if (isset($_POST['type'])){
+        switch($_POST['type']) {
+            case 'tqbk':
+                $type = 'tqbk';
+                break;
+            case 'dypbk':
+                $type = 'dypbk';
+                break;
+            case 'depbk':
+                if ($class === 'w') {
+                    $type = 'depbk';
+                } else {
+                    die('do not debug this webpage');
+                }
+                break;
+        }
+    }
+    $query = null;
+    $sql = null;
+    if(($school || $field) && $type != null){
+        $q_type = ($class==='w' ? 'w_' : '').$type;
+        if($school){
+            $sql = "SELECT * FROM `{$q_type}` WHERE `school_name` LIKE '%{$school_name}%' OR `province` LIKE '%{$school_name}%'".($field ? " AND `cate_name` LIKE '%{$field_name}%'" : "");
+        } else if($field) {
+            $sql = "SELECT * FROM `{$q_type}` WHERE `cate_name` LIKE '%{$field_name}%'";
+        }
+    }
+?>
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8">
+    <title>2018 贵州高考<?=$class==='l' ? '理' : '文'?>科大学索引</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://yoooooooo.tk/framework/bootstrap/4.0.0/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://yoooooooo.tk/framework/shards/css/shards.min.css">
+    <style>
+    body {
+        font-family: -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+        background-color: rgba(255, 255, 255, 0.976);
+    }
+    .only-print {
+        display: none;
+    }
+    .footer:before {
+        content: '©Dalvik Shen 2018 \A 数据来源：贵州省招考网 · 仅供参考 \A 版本: v1.5.0.8e79f4e Tomcat Version: 7.0.76';
+        white-space: pre;
+        font-size: 80%;
+    }
+    .footer {
+        padding: 2vmax;
+        padding-top: .9vw;
+    }
+    .no-select {
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f7f8fb;
+    }
+    .table th {
+        padding: 15px 25px;
+        font-size: 11px;
+        font-weight: 300;
+        text-transform: uppercase;
+        line-height: 1;
+        color: #9ba4ae;
+        border: none;
+    }
+    .table tbody td {
+        font-size: .9125rem;
+        vertical-align: middle;
+    }
+    .table {
+        background: #fff;
+        box-shadow: 0 0 25px rgba(40,47,60,.05), 0 20px 25px rgba(40,47,60,.05), 0 3px 4px rgba(40,47,60,.05);
+    }
+    @media print {
+        .no-print {
+            display: none;
+        }
+        .only-print {
+            display: block;
+        }
+    }
+  </style>
+  </head>
+  <body>
+
+<p class="alert alert-success">👍 喜欢吗？请考虑<a target="_blank" href="//donate.ifengge.cn/" class="alert-link" style="font-weight: bold;">赞助我</a>。</p>
+<div class="p-xl-4">
+    <div class="container-fluid p-0">
+        <div class="section-title col-lg-12 col-md-12 ml-auto mr-auto">
+            <a class="float-right" href="javascript:$('#bd-select-class-modal').modal('show');">切换文理科</a>
+            <h3 class="mb-4">2018 贵州高考<?=$class==='l' ? '理' : '文'?>科大学索引</h3>
+            ⚠️ 注意 Attention<br/>本数据仅用于贵州省 2018 年<?=$class==='l' ? '理' : '文'?>科考生，已为打印优化。同一学校不同不同专业类别是不同的院校代号，填写志愿时应在专业选择页面认真核对学校是否正确。<br/>只有在电脑浏览才可以查看历届分数线<br/><br/>
+            <p class="no-print">
+                使用方法：可以直接搜索学校名称，也可以直接搜索学校名称中的关键词。比如：
+                <ul class="no-print">
+                    <li>搜索北京大学的所有专业：在模糊查询中输入北京大学提交</li>
+                    <li>搜索北京的大学的所有专业：在模糊查询中输入北京提交</li>
+                    <li>搜索拥有某个专业的大学：在模糊查询中不输入内容并在专业中输入专业名称提交</li>
+                    <li>搜索北京的拥有某个专业的大学：在模糊查询中输入北京并在专业中输入专业名称提交</li>
+                </ul>
+            </p>
+            <p class="only-print">关键词 - <?=$_POST['school']?>，专业 - <?=$_POST['field']?>。生成时间：<?=date("Y/m/d h:i:sa")?></p>
+        </div>
+    <form action="#" method="post" onsubmit="return submitQuery(this);" class="no-print col-lg-12 col-md-12 ml-auto mr-auto">
+        <input class="d-none" type="text" value="<?=$_POST['class']?>" name="class" id="class"/>
+        <div class="row">
+        <div class="custom-controls-stacked col-12">
+            <div class="custom-control custom-radio mb-3">
+                <input class="custom-control-input" type="radio" name="type" value="tqbk" id="tqbk"<?php if($type === "tqbk") echo " checked"?> required>
+                <label class="custom-control-label" for="tqbk">提前本科</label>&nbsp;&nbsp;
+            </div>
+            <div class="custom-control custom-radio mb-3">
+                <input class="custom-control-input" type="radio" name="type" value="dypbk" id="dypbk"<?php if($type === "dypbk") echo " checked"?>>
+                <label class="custom-control-label" for="dypbk">第一批本科(统招)</label>
+            </div>
+            <?php if($class==='w'):?>
+            <div class="custom-control custom-radio mb-3">
+                <input class="custom-control-input" type="radio" name="type" value="depbk" id="depbk"<?php if($type === "depbk") echo " checked"?>>
+                <label class="custom-control-label" for="depbk">第二批本科(统招)</label>
+            </div>
+            <?php endif;?>
+        </div>
+
+        <br/>
+        <div class="form-group col-md-6">
+            <label for="school" class="col-form-label">搜索学校关键词或省份</label>
+            <input type="text" class="form-control" id="school" name="school" maxlength=15 value="<?=$_POST['school']?>" placeholder="搜索学校关键词或省份">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="field" class="col-form-label">专业</label>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="field" name="field" maxlength=15 value="<?=$_POST['field']?>" placeholder="专业">
+                <div class="input-group-append">
+                    <input type="submit" value="提交" name="submit" class="btn btn-outline-primary"></input>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    function submitQuery(form) {
+        form.submit.value='正在查询';
+        form.submit.disabled=true;
+        return true;
+    }
+</script>
+<?php 
+    $rowcount = 0;
+    if($sql != null) {
+        $query = mysqli_query($conn, $sql);
+        $rowcount=mysqli_num_rows($query);
+        echo "<span class=\"badge ml-3 mb-2 badge-pill badge-success\" style=\"margin-bottom:1vmin;\">{$rowcount} 个结果，记录在案的</span><br/>";
+    }
+    if($rowcount):?>
+
+<table style="width: 100%;" class="table table-striped table-responsive-md">
+    <tr>
+        <th nowrap="nowrap">序号</th>
+        <th nowrap="nowrap">院校代号</th>
+        <th nowrap="nowrap">院校名称</th>
+        <th nowrap="nowrap">全国热度</th>
+        <th nowrap="nowrap">院校所在省</th>
+        <th nowrap="nowrap">院校隶属</th>
+        <th nowrap="nowrap">院校计划</th>
+        <th nowrap="nowrap">专业类别</th>
+        <th nowrap="nowrap">专业代号</th>
+        <th nowrap="nowrap">专业名称</th>
+        <th nowrap="nowrap">专业计划数</th>
+        <th nowrap="nowrap">参考</th>
+    </tr>
+    <?php while($row = mysqli_fetch_array($query)):?>
+    <tr>
+        <td align="center" nowrap="nowrap"><?=$row['serial_num']?></td>
+        <td align="center" nowrap="nowrap"><?=$row['school_id']?></td>
+        <td align="left" nowrap="nowrap" style="font-weight: bold;" class="tip" data-toggle="tooltip" data-placement="top" title="<?=$row['jianjie']."..."?>"><?=$row['guanwang'] ? "<a href=\"{$row['guanwang']}\" style=\"color:#5a6169;\" target=\"_blank\">{$row['school_name']}</a>" : $row['school_name']?><?=$row['f985'] ? "&nbsp;<span class=\"badge badge-warning badge-pill\">985</span>" : ""?><?=$row['f211'] ? "&nbsp;<span class=\"badge badge-success badge-pill\">211</span>" : ""?></td>
+        <td align="center" nowrap="nowrap"><?=(!$row['ranking']) ? "未知" : $row['ranking']?></td>
+        <td align="center" nowrap="nowrap"><?=(!$row['province']) ? "未知" : $row['province']?></td>
+        <td align="center"><?=(!$row['membership']) ? "未知" : $row['membership']?></td>
+        <td align="center" nowrap="nowrap"><?=$row['school_plan']?></td>
+        <td align="center" nowrap="nowrap"><?=$row['cate_field']?></td>
+        <td align="center" nowrap="nowrap"><?=$row['cate_id']?></td>
+        <td align="left"><?=$row['cate_name']?></td>
+        <td align="center" nowrap="nowrap"><?=$row['cate_plan']?></td>
+        <td align="left" nowrap="nowrap"><div class="btn-group btn-group-sm" role="group" aria-label="options"><a href="<?=$row['constitution']?>" target="_blank" class="<?=$row['constitution'] ? "" : "disabled "?>btn btn-outline-secondary">招生章程</a><a href="<?=$row['chafen']?>" target="_blank" class="<?=$row['chafen'] ? "" : "disabled "?>btn btn-outline-secondary">历届分数线</a><button type="button" target="_blank" class="<?=$row['shoufei'] ? "" : "disabled "?>btn btn-outline-secondary tip" <?=$row['shoufei'] ? "data-toggle=\"tooltip\" data-placement=\"top\" title=\"{$row['shoufei']}\"" : ""?>>收费标准</button></div></td>
+    </tr>
+    <?php endwhile;?>
+</table>
+
+</div>
+<?php
+    endif;
+    if($query!=null) mysqli_free_result($query);
+    mysqli_close($conn);
+?>
+<!-- Matomo -->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//analytics.ifengge.cn/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', '5']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Matomo Code -->
+<!-- Service Worker (But not now)
+<script>
+    "serviceWorker"in navigator && "api.ifengge.cn" === window.location.hostname && navigator.serviceWorker.register("./service-worker.js").then(function(e) {
+        console.log("ServiceWorker registration successful with scope: ", e.scope)
+    }).catch(function(e) {
+        console.log("ServiceWorker registration failed: ", e)
+    })
+</script> -->
+</div>
+<div class="no-print footer"></div>
+
+
+<script src="https://yoooooooo.tk/framework/jquery/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+<script src="https://yoooooooo.tk/framework/shards/js/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://yoooooooo.tk/framework/bootstrap/4.0.0/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://yoooooooo.tk/framework/shards/js/shards.min.js"></script>
+<script>
+$('.tip').tooltip();
+</script>
+<div class="modal fade" id="bd-select-class-modal" tabindex="-1" role="dialog" aria-hidden="false" aria-labelledby="ModelTitle">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title" id="ModelTitle">选择你的科类</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        <div class="modal-body">
+        <form action="#" method="post" id="classForm">
+            <input class="d-none" type="text" value="l" name="class" id="iclass"/>
+            <div class="list-group">
+                <a href="javascript:switchClass('l');" class="list-group-item list-group-item-action flex-column align-items-start<?=$class === 'l' ? ' active' : ''?>">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">我是理科生</h5>
+                        <small>最后更新：3 days ago</small>
+                    </div>
+                    <p class="mb-1">可查询的批次：提前本科、第一批本科（统招）</p>
+                    <small>将显示理科数据</small>
+                </a>
+                <a href="javascript:switchClass('w');" class="list-group-item list-group-item-action flex-column align-items-start<?=$class === 'w' ? ' active' : ''?>">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">我是文科生</h5>
+                        <small>最后更新：1 days ago</small>
+                    </div>
+                    <p class="mb-1">可查询的批次：提前本科、第一批本科（统招）、第二批本科（统招）</p>
+                    <small>将显示文科数据</small>
+                </a>
+            </div>
+        </div>
+        </div>
+    </div>
+  </div>
+</div>
+<style>
+.active h5, .active small, .active p {
+    color: #fff !important;
+}
+</style>
+<script>
+function switchClass(val) {
+    $("#iclass").val(val)
+    $('#classForm').submit();
+}
+</script>
+<?php if(!isset($_POST['class'])) :?>
+<script>
+$('#bd-select-class-modal').modal('show');
+</script>
+<?php endif;?>
+  </body>
+</html>

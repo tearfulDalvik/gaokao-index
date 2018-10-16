@@ -1,0 +1,17 @@
+{
+    "name" : "dalvik-spider",
+    "version" : "1.3.1",
+    "author": "Dalvik Shen",
+	"description": "丰哥的通用爬虫",
+	"repository": {
+		"type": "git",
+		"url": "https://git.ifengge.me/Dalvik/spider/"
+	},
+	"license":"MIT",
+	"dependencies": {
+		"request": "latest"
+	},
+	"scripts": {
+		"line": "node contents/line.js"
+	}
+}
